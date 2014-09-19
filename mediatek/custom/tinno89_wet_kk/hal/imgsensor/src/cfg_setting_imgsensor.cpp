@@ -53,6 +53,7 @@ MBOOL isRetFakeMain2Orientation()
 	return MFALSE;
 }
 
+
 /*******************************************************************************
 * Sensor Input Data Bit Order
 *   Return:
@@ -124,23 +125,6 @@ getSensorFacingDirection(EDevId const eDevId)
         break;
     }
     return  -1;
-}
-/*******************************************************************************
-* Image Sensor Module FOV
-*******************************************************************************/
-SensorViewAngle_T const&
-getSensorViewAngle()
-{
-    static SensorViewAngle_T const inst = {
-        MainSensorHorFOV  : 55,   
-        MainSensorVerFOV  : 42,    
-        SubSensorHorFOV  : 60,   
-        SubSensorVerFOV  : 40,
-        Main2SensorHorFOV  : 0,   //not support
-        Main2SensorVerFOV  : 0,
-    };
-    return inst;
-
 }
 };
 
