@@ -1,3 +1,73 @@
+/* Copyright Statement:
+ *
+ * This software/firmware and related documentation ("MediaTek Software") are
+ * protected under relevant copyright laws. The information contained herein
+ * is confidential and proprietary to MediaTek Inc. and/or its licensors.
+ * Without the prior written permission of MediaTek inc. and/or its licensors,
+ * any reproduction, modification, use or disclosure of MediaTek Software,
+ * and information contained herein, in whole or in part, shall be strictly prohibited.
+ */
+/* MediaTek Inc. (C) 2010. All rights reserved.
+ *
+ * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
+ * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
+ * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
+ * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
+ * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
+ * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
+ * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
+ * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
+ * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
+ * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
+ * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
+ * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
+ * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
+ * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
+ * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
+ * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
+ *
+ * The following software/firmware and/or related documentation ("MediaTek Software")
+ * have been modified by MediaTek Inc. All revisions are subject to any receiver's
+ * applicable license agreements with MediaTek Inc.
+ */
+
+/*****************************************************************************
+*  Copyright Statement:
+*  --------------------
+*  This software is protected by Copyright and the information contained
+*  herein is confidential. The software may not be copied and the information
+*  contained herein may not be used or disclosed except with the written
+*  permission of MediaTek Inc. (C) 2008
+*
+*  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
+*  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
+*  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
+*  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
+*  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+*  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
+*  NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
+*  SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
+*  SUPPLIED WITH THE MEDIATEK SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH
+*  THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO
+*  NOT BE RESPONSIBLE FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S
+*  SPECIFICATION OR TO CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
+*
+*  BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
+*  LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
+*  AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
+*  OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY BUYER TO
+*  MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
+*
+*  THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
+*  WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT OF
+*  LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING THEREOF AND
+*  RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN FRANCISCO, CA, UNDER
+*  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
+*
+*****************************************************************************/
+
 #ifndef BUILD_LK
 #include <linux/string.h>
 #endif
@@ -40,7 +110,7 @@ static LCM_UTIL_FUNCS lcm_util = {0};
 #define UDELAY(n) (lcm_util.udelay(n))
 #define MDELAY(n) (lcm_util.mdelay(n))
 
-#define  LCM_RESET_PIN  131
+
 // ---------------------------------------------------------------------------
 //  Local Functions
 // ---------------------------------------------------------------------------
@@ -148,79 +218,7 @@ static void init_lcm_registers(void)
     dsi_set_cmdq(data_array, 3, 1); 
 	//MDELAY(1);
 
-//BEGIN<20130409><Gamma>wangyanhui
-data_array[0] = 0x00073902;
-    data_array[1] = 0x1E0000D0;    //0x100000D0;
-data_array[2] = 0x00352D27;   //0x002E221E;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00063902;
-    data_array[1] = 0x1A272DD1;     //0x232B26D1;
-data_array[2] = 0x00000A1B;    //0x00000A1B;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00073902;
-    data_array[1] = 0x1E0000D2;    //0x100000D2;
-data_array[2] = 0x00352D27;   //0x002E221E;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00063902;
-    data_array[1] = 0x1A272DD3;     //0x232B26D3;
-data_array[2] = 0x00000A1B;    //0x00000A1B;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00073902;
-    data_array[1] = 0x1E0000D4;    //0x100000D4;
-data_array[2] = 0x00352D27;   //0x002E221E;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00063902;
-    data_array[1] = 0x1A272DD5;     //0x232B26D5;
-data_array[2] = 0x00000A1B;    //0x00000A1B;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00073902;
-    data_array[1] = 0x1E0000D6;    //0x100000D6;
-data_array[2] = 0x00352D27;   //0x002E221E;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00063902;
-    data_array[1] = 0x1A272DD7;     //0x232B26D7;
-data_array[2] = 0x00000A1B;    //0x00000A1B;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00073902;
-    data_array[1] = 0x1E0000D8;    //0x100000D8;
-data_array[2] = 0x00352D27;   //0x002E221E;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00063902;
-    data_array[1] = 0x1A272DD9;     //0x232B26D9;
-data_array[2] = 0x00000A1B;    //0x00000A1B;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00073902;
-    data_array[1] = 0x1E0000DA;    //0x100000DA;
-data_array[2] = 0x00352D27;   //0x002E221E;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-
-data_array[0] = 0x00063902;
-    data_array[1] = 0x1A272DDB;     //0x232B26DB;
-data_array[2] = 0x00000A1B;    //0x00000A1B;
-    dsi_set_cmdq(data_array, 3, 1);
-//MDELAY(1);
-#if 0	
+	
 	data_array[0] = 0x00073902;                          
     data_array[1] = 0x100000D0; 
 	data_array[2] = 0x002E221E; 
@@ -297,8 +295,6 @@ data_array[2] = 0x00000A1B;    //0x00000A1B;
 	data_array[2] = 0x00000A1B; 
     dsi_set_cmdq(data_array, 3, 1); 
 	//MDELAY(1);
-#endif
-//END<20130409><Gamma>wangyanhui
 
 	data_array[0] = 0x00053902;                          
     data_array[1] = 0xFF00D870; 
@@ -363,23 +359,15 @@ data_array[2] = 0x00000A1B;    //0x00000A1B;
  
 	data_array[0] = 0x00083902;                          
 	data_array[1] = 0x340503C3;     //0x340503C3
-	data_array[2] = 0x54440105;		//0x54440105; 	//add by lishengli 20130620
+	data_array[2] = 0x54440105; 
     dsi_set_cmdq(data_array, 3, 1);
 	//MDELAY(1);
 
-//add by lishengli 20130620 begin
-/*
 	data_array[0] = 0x00063902; 
 	data_array[1] = 0x580302C4;  //0x701303c4 //0x700302C4
 	data_array[2] = 0x00005A58;  //0x00005C70
-*/
-        data_array[0] = 0x00063902;
-        data_array[1] = 0x58030AC4;
-        data_array[2] = 0x00005A54; //0x0000565A;
     dsi_set_cmdq(data_array, 3, 1);
 	//MDELAY(1);
-//add by lishengli 20130620 end
-
 
     #if 0
     //no need to config 0xDE register
@@ -524,24 +512,6 @@ data_array[2] = 0x00000A1B;    //0x00000A1B;
     dsi_set_cmdq(data_array, 2, 1);
     MDELAY(1);//wait for PLL to lock 						//diff with truly    lishengli   20121213
 
-#if 0
-	data_array[0] = 0x00023902;                          
-	data_array[1] = 0x00002c53;                 
-	dsi_set_cmdq(data_array, 2, 1);
-
-	data_array[0] = 0x00023902;                          
-	data_array[1] = 0x0000ff51;                 
-	dsi_set_cmdq(data_array, 2, 1);
-
-	data_array[0] = 0x00023902;                          
-	data_array[1] = 0x00000355;                 
-	dsi_set_cmdq(data_array, 2, 1);
-
-	data_array[0] = 0x00023902;                          
-	data_array[1] = 0x0000005e;                 
-	dsi_set_cmdq(data_array, 2, 1);
-#endif
-
     //1 Do not delete 0x11, 0x29 here
 	data_array[0] = 0x00110500; // Sleep Out
 	dsi_set_cmdq(data_array, 1, 1);
@@ -628,15 +598,15 @@ static void lcm_get_params(LCM_PARAMS *params)
 	    	params->dsi.LPX=13; 
 		//params->dsi.HS_PRPR=5;
 		//params->dsi.HS_TRAIL=13;
-	//	params->dsi.noncont_clock = TRUE;
-	//	params->dsi.noncont_clock_period = 2;
 
 		// Bit rate calculation
 		//1 Every lane speed
 		params->dsi.pll_div1=0;		// div1=0,1,2,3;div1_real=1,2,4,4 ----0: 546Mbps  1:273Mbps
 		params->dsi.pll_div2=1;		// div2=0,1,2,3;div1_real=1,2,4,4	
-		params->dsi.fbk_div =16; //15; //16;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)	
+		params->dsi.fbk_div =19;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)	
 
+		params->dsi.noncont_clock = TRUE;
+		params->dsi.noncont_clock_period = 2;	// Unit : frames
 }
 
 static void lcm_init(void)
@@ -659,18 +629,14 @@ static void lcm_init(void)
 static void lcm_suspend(void)
 {
 	unsigned int data_array[16];
-#if 1
-	data_array[0] = 0x00280500; // Sleep Out
-	dsi_set_cmdq(data_array, 1, 1);
-	MDELAY(20);
-	
-	data_array[0] = 0x00100500; // Display On
-	dsi_set_cmdq(data_array, 1, 1); 
+
+	SET_RESET_PIN(1);
+	MDELAY(5);
+	SET_RESET_PIN(0);
+	MDELAY(10);
+	SET_RESET_PIN(1);
 	MDELAY(120);
-#endif
-
-#if 1
-
+	
 	data_array[0] = 0x00023902;                          
 	data_array[1] = 0x000001FF;                 
 	dsi_set_cmdq(data_array, 2, 1);
@@ -688,25 +654,12 @@ static void lcm_suspend(void)
 	data_array[0] = 0x00033902;                          
 	data_array[1] = 0x00100CCE; 
 	dsi_set_cmdq(data_array, 2, 1);
-#endif
-
-
-	//SET_RESET_PIN(1);
-	//MDELAY(25);
-	//SET_RESET_PIN(0);
-	//MDELAY(5000);
-	//SET_RESET_PIN(1);
-	//MDELAY(5000);
-	mt_set_gpio_mode(LCM_RESET_PIN, 0);
-	mt_set_gpio_dir(LCM_RESET_PIN,GPIO_DIR_OUT);
-	mt_set_gpio_out(LCM_RESET_PIN, 0);
 }
 
 
 static void lcm_resume(void)
 {
    //1 do lcm init again to solve some display issue
-	mt_set_gpio_mode(LCM_RESET_PIN, 7);
 	SET_RESET_PIN(1);
    	MDELAY(2);   // > 1ms
 	SET_RESET_PIN(0);
@@ -852,10 +805,9 @@ static unsigned int lcm_esd_check(void)
         dsi_set_cmdq(array, 1, 1);
 
         read_reg_v2(0xF5, buffer, 3);
-        //printk(" lcm_esd_check   buffer[0] = %d  ,buffer[1] = %d,buffer[2] = %d \n",buffer[0],buffer[1],buffer[2]);
+        printk(" lcm_esd_check   buffer[0] = %d  ,buffer[1] = %d,buffer[2] = %d \n",buffer[0],buffer[1],buffer[2]);
 
-        //if(((buffer[0]&0xff)==0) && ((buffer[1]&0xf0) ==0)&&((buffer[2]&0x0f)== 0))
-	if(((buffer[0]&0xff)==0) && ((buffer[1]&0xf0) ==0)&&((buffer[2]&0x01)== 0))
+        if(((buffer[0]&0xff)==0) && ((buffer[1]&0xf0) ==0)&&((buffer[2]&0x0f)== 0))
         {
                 return FALSE;
         }
