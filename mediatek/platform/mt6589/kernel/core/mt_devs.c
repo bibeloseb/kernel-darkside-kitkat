@@ -15,7 +15,6 @@
 #include <linux/spi/spi.h>
 #include <linux/amba/bus.h>
 #include <linux/amba/clcd.h>
-#include <linux/musb/musb.h>
 #include <linux/musbfsh.h>
 #include "mach/memory.h"
 #include "mach/irqs.h"
@@ -35,6 +34,7 @@ extern BOOTMODE get_boot_mode(void);
 extern u32 g_devinfo_data[];
 extern u32 g_devinfo_data_size;
 extern void adjust_kernel_cmd_line_setting_for_console(char*, char*);
+unsigned int get_max_DRAM_size(void);
 
 struct {
 	u32 base;
@@ -47,31 +47,15 @@ static int use_bl_fb = 0;
 /* MT6589 USB GADGET                                                     */
 /*=======================================================================*/
 static u64 usb_dmamask = DMA_BIT_MASK(32);
-static struct musb_hdrc_config musb_config_mt65xx = {
-	.multipoint     = true,
-	.dyn_fifo       = true,
-	.soft_con       = true,
-	.dma            = true,
-	.num_eps        = 16,
-	.dma_channels   = 8,
-};
 
-static struct musb_hdrc_platform_data usb_data = {
-#ifdef CONFIG_USB_MTK_OTG
-	.mode           = MUSB_OTG,
-#else
-	.mode           = MUSB_PERIPHERAL,
-#endif
-	.config         = &musb_config_mt65xx,
-};
 struct platform_device mt_device_usb = {
 	.name		  = "mt_usb",
-	.id		  = -1,   //only one such device
+	.id		  = -1,
 	.dev = {
-		.platform_data          = &usb_data,
+		//.platform_data          = &usb_data_mt65xx,
 		.dma_mask               = &usb_dmamask,
 		.coherent_dma_mask      = DMA_BIT_MASK(32),
-        /*.release=musbfsh_hcd_release,*/
+		//.release=musbfsh_hcd_release,
 		},
 };
 
@@ -87,8 +71,8 @@ static struct musbfsh_hdrc_config musbfsh_config_mt65xx = {
 	.dyn_fifo       = true,
 	.soft_con       = true,
 	.dma            = true,
-	.num_eps        = 16,
-	.dma_channels   = 8,
+	.num_eps        = 6,
+	.dma_channels   = 4,
 };
 static struct musbfsh_hdrc_platform_data usb_data_mt65xx = {
 	.mode           = 1,
@@ -164,6 +148,31 @@ static struct resource mtk_resource_uart4[] = {
 	},
 };
 #endif
+
+#define MAX_NR_MODEM 2
+unsigned long modem_start_addr_list[MAX_NR_MODEM] = { 0x0, 0x0, };
+
+unsigned int get_modem_size(void)
+{
+    int i, nr_modem;
+    unsigned int size = 0, *modem_size_list;
+    modem_size_list = get_modem_size_list();
+    nr_modem = get_nr_modem();
+    if (modem_size_list) {
+        for (i = 0; i < nr_modem; i++) {
+            size += modem_size_list[i];
+        }
+        return size;
+    } else {
+        return 0;
+    }
+}
+
+unsigned long *get_modem_start_addr_list(void)
+{
+    return modem_start_addr_list;
+}
+EXPORT_SYMBOL(get_modem_start_addr_list);
 
 extern unsigned long max_pfn;
 #define RESERVED_MEM_MODEM  (0x0) // do not reserve memory in advance, do it in mt_fixup
@@ -678,17 +687,6 @@ static struct platform_device mt_hid_dev = {
 #endif 
 
 /*=======================================================================*/
-/* UIBC input device, add by Seraph                                      */
-/*=======================================================================*/
-
-#if defined(MTK_WFD_SUPPORT)
-static struct platform_device mt_uibc_dev = {
-    .name = "uibc",
-    .id   = -1,
-};
-#endif 
-
-/*=======================================================================*/
 /* MT6575 Touch Panel                                                    */
 /*=======================================================================*/
 static struct platform_device mtk_tpd_dev = {
@@ -765,16 +763,6 @@ static struct platform_device dummychar_device =
        .name           = "dummy_char",
         .id             = 0,
 };
-
-/*=======================================================================*/
-/* MASP                                                                  */
-/*=======================================================================*/
-static struct platform_device masp_device =
-{
-       .name           = "masp",
-       .id             = -1,
-};
-
 
 /*=======================================================================*/
 /* MT6589 NAND                                                           */
@@ -1071,7 +1059,7 @@ static void cmdline_filter(struct tag *cmdline_tag, char *default_cmdline)
 	    	    if (memcmp(cs, undesired_cmds[i], strlen(undesired_cmds[i])) == 0) {
 			ck_f = 1;
                         break;
-                    }
+                    }    		
 	    	}
 
                 if(ck_f == 0){
@@ -1129,9 +1117,13 @@ void mt_fixup(struct tag *tags, char **cmdline, struct meminfo *mi)
                              RESERVED_MEM_MODEM;
     unsigned long avail_dram = 0;
     unsigned long bl_mem_sz = 0;
-#ifdef MTK_TABLET_PLATFORM
-    struct machine_desc *mdesc = NULL;
-#endif
+    /* for modem fixup */
+    unsigned int nr_modem = 0, i = 0;
+    unsigned int max_avail_addr = 0;
+    unsigned int modem_start_addr = 0;
+    unsigned int hole_start_addr = 0;
+    unsigned int hole_size = 0;
+    unsigned int *modem_size_list = 0;
 
 #if defined(CONFIG_MTK_FB)
 	struct tag *temp_tags = tags;
@@ -1185,17 +1177,6 @@ void mt_fixup(struct tag *tags, char **cmdline, struct meminfo *mi)
         }
     }
 
-#ifdef MTK_TABLET_PLATFORM
-    for_each_machine_desc(mdesc)
-      if (6589 == mdesc->nr)
-        break;
-
-    if (mdesc)
-    {
-        strcpy((char *)mdesc->name, "MT8389");
-    }
-#endif
-
     kernel_mem_sz = avail_dram; // keep the DRAM size (limited by CONFIG_MAX_DRAM_SIZE_SUPPORT)
     /*
     * If the maximum memory size configured in kernel
@@ -1245,6 +1226,86 @@ void mt_fixup(struct tag *tags, char **cmdline, struct meminfo *mi)
         MTK_MEMCFG_LOG_AND_PRINTK(KERN_ALERT
                 "[PHY layout]PMEM     :   0x%08lx - 0x%08lx  (0x%08x)\n",
                 PMEM_MM_START, (PMEM_MM_START + PMEM_MM_SIZE - 1), PMEM_MM_SIZE);
+    }
+    /*
+     * fixup memory tags for dual modem model
+     * assumptions:
+     * 1) modem start addresses should be 32MiB aligned
+     */
+    nr_modem = get_nr_modem();
+    modem_size_list = get_modem_size_list();
+    if(tags->hdr.tag == ATAG_NONE) {
+        for (i = 0; i < nr_modem; i++) {
+            /* sanity test */
+            if (modem_size_list[i]) {
+                printk(KERN_ALERT"fixup for modem [%d], size = 0x%08x\n", i,
+                        modem_size_list[i]);
+            } else {
+                printk(KERN_ALERT"[Error]skip empty modem [%d]\n", i);
+                continue;
+            }
+            printk(KERN_ALERT
+                    "reserved_mem_bank_tag start = 0x%08x, "
+                    "reserved_mem_bank_tag size = 0x%08x, "
+                    "TOTAL_RESERVED_MEM_SIZE = 0x%08x\n",
+                    reserved_mem_bank_tag->u.mem.start,
+                    reserved_mem_bank_tag->u.mem.size,
+                    TOTAL_RESERVED_MEM_SIZE);
+            /* find out start address for modem */
+            max_avail_addr = reserved_mem_bank_tag->u.mem.start +
+                             reserved_mem_bank_tag->u.mem.size;
+            modem_start_addr =
+                round_down((max_avail_addr -
+                        modem_size_list[i]), 0x2000000);
+            /* sanity test */
+            if (modem_size_list[i] > reserved_mem_bank_tag->u.mem.size) {
+                printk(KERN_ALERT"[Error]skip modem [%d] fixup: "
+                        "size too large: 0x%08x, "
+                        "reserved_mem_bank_tag->u.mem.size: 0x%08x\n", i,
+                        modem_size_list[i],
+                        reserved_mem_bank_tag->u.mem.size);
+                continue;
+            }
+            if (modem_start_addr < reserved_mem_bank_tag->u.mem.start) {
+                printk(KERN_ALERT"[Error]skip modem [%d] fixup: "
+                        "modem crosses memory bank boundary: 0x%08x, "
+                        "reserved_mem_bank_tag->u.mem.start: 0x%08x\n", i,
+                        modem_start_addr,
+                        reserved_mem_bank_tag->u.mem.start);
+                continue;
+            }
+            printk(KERN_ALERT"modem fixup sanity test pass\n");
+            modem_start_addr_list[i] = modem_start_addr;
+            hole_start_addr = modem_start_addr + modem_size_list[i];
+            hole_size = max_avail_addr - hole_start_addr;
+            printk(KERN_ALERT
+                    "max_avail_addr = 0x%08x, "
+                    "modem_start_addr_list[%d] = 0x%08x, "
+                    "hole_start_addr = 0x%08x, hole_size = 0x%08x\n",
+                    max_avail_addr, i, modem_start_addr,
+                    hole_start_addr, hole_size);
+            MTK_MEMCFG_LOG_AND_PRINTK(KERN_ALERT
+                    "[PHY layout]MD       :   0x%08x - 0x%08x  (0x%08x)\n",
+                    modem_start_addr,
+                    (modem_start_addr + modem_size_list[i] - 1),
+                    modem_size_list[i]);
+            /* shrink reserved_mem_bank */
+            reserved_mem_bank_tag->u.mem.size -=
+                (max_avail_addr - modem_start_addr);
+            printk(KERN_ALERT
+                    "reserved_mem_bank: start = 0x%08x, size = 0x%08x\n",
+                    reserved_mem_bank_tag->u.mem.start,
+                    reserved_mem_bank_tag->u.mem.size);
+            /* setup a new memory tag */
+            tags->hdr.tag = ATAG_MEM;
+            tags->hdr.size = tag_size(tag_mem32);
+            tags->u.mem.start = hole_start_addr;
+            tags->u.mem.size = hole_size;
+            /* do next tag */
+            tags = tag_next(tags);
+        }
+        tags->hdr.tag = ATAG_NONE; // mark the end of the tag list
+        tags->hdr.size = 0;
     }
 
     if(tags->hdr.tag == ATAG_NONE)
@@ -1398,38 +1459,6 @@ static struct platform_device actuator_dev = {
 	.name		  = "lens_actuator",
 	.id		  = -1,
 };
-
-static struct platform_device actuator_dev0 = {
-	.name		  = "lens_actuator0",
-	.id		  = -1,
-};
-
-static struct platform_device actuator_dev1 = {
-	.name		  = "lens_actuator1",
-	.id		  = -1,
-};
-
-static struct platform_device actuator_dev2 = {
-	.name		  = "lens_actuator2",
-	.id		  = -1,
-};
-
-static struct platform_device actuator_dev3 = {
-	.name		  = "lens_actuator3",
-	.id		  = -1,
-};
-
-static struct platform_device actuator_dev4 = {
-	.name		  = "lens_actuator4",
-	.id		  = -1,
-};
-
-static struct platform_device actuator_dev5 = {
-	.name		  = "lens_actuator5",
-	.id		  = -1,
-};
-
-
 /*=======================================================================*/
 /* MT6575 jogball                                                        */
 /*=======================================================================*/
@@ -1464,18 +1493,10 @@ static struct platform_device mtk_nfc_6605_dev = {
 /* Sim switch driver                                                         */
 /*=======================================================================*/
 #if defined (CUSTOM_KERNEL_SSW)
-static struct platform_device ssw_device = {
-	.name = "sim-switch",
+static struct platform_device ssw_device = {	
+	.name = "sim-switch",	
 	.id = -1};
 #endif
-
-/*=======================================================================*/
-/* battery driver                                                         */
-/*=======================================================================*/
-struct platform_device battery_device = {
-    .name   = "battery",
-    .id        = -1,
-};
 
 /*=======================================================================*/
 /* MT6589 Board Device Initialization                                    */
@@ -1561,13 +1582,6 @@ __init int mt6589_board_init(void)
 	}
 #endif
 
-#if defined(MTK_WFD_SUPPORT)
-	retval = platform_device_register(&mt_uibc_dev);
-	if (retval != 0){
-		return retval;
-	}
-#endif
-
 #if defined(CONFIG_MTK_I2C)
 	//i2c_register_board_info(0, i2c_devs0, ARRAY_SIZE(i2c_devs0));
 	//i2c_register_board_info(1, i2c_devs1, ARRAY_SIZE(i2c_devs1));
@@ -1625,7 +1639,7 @@ __init int mt6589_board_init(void)
     printk("register 8193_CKGEN device\n");
     retval = platform_device_register(&mtk_ckgen_dev);
     if (retval != 0){
-
+        
         printk("register 8193_CKGEN device FAILS!\n");
         return retval;
     }
@@ -1640,13 +1654,13 @@ __init int mt6589_board_init(void)
      */
     if (((bl_fb.base == FB_START) && (bl_fb.size == FB_SIZE)) ||
          (use_bl_fb == 2)) {
-        printk(KERN_ALERT"FB is initialized by BL(%d)\n", use_bl_fb);
+        printk("FB is initialized by BL(%d)\n", use_bl_fb);
         mtkfb_set_lcm_inited(1);
     } else if ((bl_fb.base == 0) && (bl_fb.size == 0)) {
-        printk(KERN_ALERT"FB is not initialized(%d)\n", use_bl_fb);
+        printk("FB is not initialized(%d)\n", use_bl_fb);
         mtkfb_set_lcm_inited(0);
     } else {
-        printk(KERN_ALERT
+        printk(
 "******************************************************************************\n"
 "   WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING\n"
 "******************************************************************************\n"
@@ -1678,10 +1692,17 @@ __init int mt6589_board_init(void)
 #endif
     }
 
-	resource_fb[0].start = FB_START;
-	resource_fb[0].end   = FB_START + FB_SIZE - 1;
+    if ((use_bl_fb == 2)) {
+        /* use FB initialized by LK */
+        printk("use LK FB %d\n", use_bl_fb);
+        resource_fb[0].start = bl_fb.base;
+        resource_fb[0].end  = bl_fb.base + bl_fb.size - 1;
+    } else {
+        resource_fb[0].start = FB_START;
+        resource_fb[0].end   = FB_START + FB_SIZE - 1;
+    }
 
-    printk(KERN_ALERT"FB start: 0x%x end: 0x%x\n", resource_fb[0].start,
+    printk("FB start: 0x%x end: 0x%x\n", resource_fb[0].start,
                                          resource_fb[0].end);
 
     retval = platform_device_register(&mt6575_device_fb);
@@ -1713,7 +1734,7 @@ __init int mt6589_board_init(void)
 
 
 
-
+    
 
 #if defined(MTK_TVOUT_SUPPORT)
     retval = platform_device_register(&mt6575_TVOUT_dev);
@@ -1783,13 +1804,6 @@ __init int mt6589_board_init(void)
 	if (retval != 0)
 		return retval;
 
-#if defined(CUSTOM_KERNEL_ALSPS)
-	retval = platform_device_register(&sensor_alsps);
-		printk("sensor_alsps device!");
-	if (retval != 0)
-		return retval;
-#endif
-
 #if defined(CUSTOM_KERNEL_ACCELEROMETER)
 	retval = platform_device_register(&sensor_gsensor);
 		printk("sensor_gsensor device!");
@@ -1824,6 +1838,12 @@ __init int mt6589_board_init(void)
 		return retval;
 #endif
 
+#if defined(CUSTOM_KERNEL_ALSPS)
+	retval = platform_device_register(&sensor_alsps);
+		printk("sensor_alsps device!");
+	if (retval != 0)
+		return retval;
+#endif
 #endif
 
 #if defined(CONFIG_MTK_USBFSH)
@@ -1842,15 +1862,6 @@ __init int mt6589_board_init(void)
 	printk("mt_device_usb register fail\n");
         return retval;
 	}
-#endif
-
-
-#if 1
-   retval = platform_device_register(&battery_device);
-   if (retval) {
-	   printk("[battery_driver] Unable to device register\n");
-   return retval;
-   }
 #endif
 
 #if defined(CONFIG_MTK_TOUCHPANEL)
@@ -1926,7 +1937,7 @@ retval = platform_device_register(&dummychar_device);
     retval = platform_device_register(&spm_mcdi_pdev);
     if (retval != 0) {
         return retval;
-    }
+    }    
 
     retval = platform_device_register(&golden_setting_pdev);
     if (retval != 0) {
@@ -1959,37 +1970,6 @@ retval = platform_device_register(&dummychar_device);
     if (retval != 0){
         return retval;
     }
-
-    retval = platform_device_register(&actuator_dev0);
-    if (retval != 0){
-        return retval;
-    }
-	
-    retval = platform_device_register(&actuator_dev1);
-    if (retval != 0){
-        return retval;
-    }	
-
-    retval = platform_device_register(&actuator_dev2);
-    if (retval != 0){
-        return retval;
-    }
-
-	retval = platform_device_register(&actuator_dev3);
-	if (retval != 0){
-		return retval;
-	}
-
-	retval = platform_device_register(&actuator_dev4);
-	if (retval != 0){
-		return retval;
-	}
-
-	retval = platform_device_register(&actuator_dev5);
-	if (retval != 0){
-		return retval;
-	}
-	
 #endif
 //
 //=======================================================================
@@ -2047,17 +2027,12 @@ retval = platform_device_register(&dummychar_device);
 	}
 #endif
 
-#if defined (CUSTOM_KERNEL_SSW)
-	retval = platform_device_register(&ssw_device);
-	if (retval != 0) {
-		return retval;
+#if defined (CUSTOM_KERNEL_SSW)	
+	retval = platform_device_register(&ssw_device);    
+	if (retval != 0) {        
+		return retval;    
 	}
 #endif
-
-    retval = platform_device_register(&masp_device);
-    if (retval != 0){
-        return retval;
-    }
 
     return 0;
 }
@@ -2088,11 +2063,24 @@ int is_pmem_range(unsigned long *base, unsigned long size)
 }
 EXPORT_SYMBOL(is_pmem_range);
 
+
+// return the size of memory from start pfn to max pfn,
+// _NOTE_
+// the memory area may be discontinuous
+unsigned int get_memory_size (void)
+{
+    return (MAX_PFN) - (PHYS_OFFSET);
+}
+EXPORT_SYMBOL(get_memory_size) ;
+
+
 // return the actual physical DRAM size
-unsigned int mtk_get_max_DRAM_size(void)
+unsigned int get_max_DRAM_size(void)
 {
         return kernel_mem_sz + RESERVED_MEM_MODEM;
 }
+EXPORT_SYMBOL(get_max_DRAM_size);
+
 
 unsigned int get_phys_offset(void)
 {
@@ -2107,21 +2095,3 @@ void get_text_region (unsigned int *s, unsigned int *e)
     *s = (unsigned int)_text, *e=(unsigned int)_etext ;
 }
 EXPORT_SYMBOL(get_text_region) ;
-
-void __weak ccci_md_mem_reserve(void)
-{
-    printk(KERN_ERR"calling weak function %s\n", __FUNCTION__);
-}
-
-void mt_reserve(void)
-{
-    /* 
-     * Dynamic reserved memory (by arm_memblock_steal) 
-     *
-     * *** DO NOT CHANGE THE RESERVE ORDER ***
-     *
-     * New memory reserve functions should be APPENDED to old funtions 
-     */
-    ccci_md_mem_reserve();
-    /* Last line of dynamic reserve functions */
-}
