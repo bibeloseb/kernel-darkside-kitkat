@@ -1,3 +1,207 @@
+/*****************************************************************************
+*  Copyright Statement:
+*  --------------------
+*  This software is protected by Copyright and the information contained
+*  herein is confidential. The software may not be copied and the information
+*  contained herein may not be used or disclosed except with the written
+*  permission of MediaTek Inc. (C) 2008
+*
+*  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
+*  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
+*  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
+*  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
+*  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+*  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
+*  NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
+*  SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
+*  SUPPLIED WITH THE MEDIATEK SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH
+*  THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO
+*  NOT BE RESPONSIBLE FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S
+*  SPECIFICATION OR TO CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
+*
+*  BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
+*  LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
+*  AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
+*  OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY BUYER TO
+*  MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
+*
+*  THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
+*  WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT OF
+*  LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING THEREOF AND
+*  RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN FRANCISCO, CA, UNDER
+*  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
+*
+*****************************************************************************/
+/*****************************************************************************
+ *
+ * Filename:
+ * ---------
+ *   sensor.c
+ *
+ * Project:
+ * --------
+ *   DUMA
+ *
+ * Description:
+ * ------------
+ *   Source code of Sensor driver
+ *
+ *
+ * Author:
+ * -------
+ *   PC Huang (MTK02204)
+ *
+ *============================================================================
+ *             HISTORY
+ * Below this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
+ *------------------------------------------------------------------------------
+ * $Revision:$
+ * $Modtime:$
+ * $Log:$
+ *
+ * 10 13 2010 sean.cheng
+ * [ALPS00021684] [Need Patch] [Volunteer Patch] CCT new feature
+ * .
+ *
+ * 09 10 2010 jackie.su
+ * [ALPS00002279] [Need Patch] [Volunteer Patch] ALPS.Wxx.xx Volunteer patch for
+ * .10y dual sensor
+ *
+ * 09 02 2010 jackie.su
+ * [ALPS00002279] [Need Patch] [Volunteer Patch] ALPS.Wxx.xx Volunteer patch for
+ * .roll back dual sensor
+ *
+ * 07 27 2010 sean.cheng
+ * [ALPS00003112] [Need Patch] [Volunteer Patch] ISP/Sensor driver modification for Customer support
+ * .1. add master clock switcher 
+ *  2. add master enable/disable 
+ *  3. add dummy line/pixel for sensor 
+ *  4. add sensor driving current setting
+ *
+ * 07 01 2010 sean.cheng
+ * [ALPS00121215][Camera] Change color when switch low and high 
+ * .Add video delay frame.
+ *
+ * 07 01 2010 sean.cheng
+ * [ALPS00002805][Need Patch] [Volunteer Patch]10X Patch for DS269 Video Frame Rate 
+ * .Change the sensor clock to let frame rate to be 30fps in vidoe mode
+ *
+ * 06 13 2010 sean.cheng
+ * [ALPS00002514][Need Patch] [Volunteer Patch] ALPS.10X.W10.11 Volunteer patch for E1k Camera 
+ * .
+ * 1. Add set zoom factor and capdelay frame for YUV sensor 
+ * 2. Modify e1k sensor setting
+ *
+ * 05 25 2010 sean.cheng
+ * [ALPS00002250][Need Patch] [Volunteer Patch] ALPS.10X.W10.11 Volunteer patch for YUV video frame rate 
+ * .
+ * Add 15fps option for video mode
+ *
+ * 05 03 2010 sean.cheng
+ * [ALPS00001357][Meta]CameraTool 
+ * .
+ * Fix OV2659 YUV sensor frame rate to 30fps in vidoe mode
+ *
+ * Mar 4 2010 mtk70508
+ * [DUMA00154792] Sensor driver
+ * 
+ *
+ * Mar 4 2010 mtk70508
+ * [DUMA00154792] Sensor driver
+ * 
+ *
+ * Mar 1 2010 mtk01118
+ * [DUMA00025869] [Camera][YUV I/F & Query feature] check in camera code
+ * 
+ *
+ * Feb 24 2010 mtk01118
+ * [DUMA00025869] [Camera][YUV I/F & Query feature] check in camera code
+ * 
+ *
+ * Nov 24 2009 mtk02204
+ * [DUMA00015869] [Camera Driver] Modifiy camera related drivers for dual/backup sensor/lens drivers.
+ * 
+ *
+ * Oct 29 2009 mtk02204
+ * [DUMA00015869] [Camera Driver] Modifiy camera related drivers for dual/backup sensor/lens drivers.
+ * 
+ *
+ * Oct 27 2009 mtk02204
+ * [DUMA00015869] [Camera Driver] Modifiy camera related drivers for dual/backup sensor/lens drivers.
+ * 
+ *
+ * Aug 13 2009 mtk01051
+ * [DUMA00009217] [Camera Driver] CCAP First Check In
+ * 
+ *
+ * Aug 5 2009 mtk01051
+ * [DUMA00009217] [Camera Driver] CCAP First Check In
+ * 
+ *
+ * Jul 17 2009 mtk01051
+ * [DUMA00009217] [Camera Driver] CCAP First Check In
+ * 
+ *
+ * Jul 7 2009 mtk01051
+ * [DUMA00008051] [Camera Driver] Add drivers for camera high ISO binning mode.
+ * Add ISO query info for Sensor
+ *
+ * May 18 2009 mtk01051
+ * [DUMA00005921] [Camera] LED Flashlight first check in
+ * 
+ *
+ * May 16 2009 mtk01051
+ * [DUMA00005921] [Camera] LED Flashlight first check in
+ * 
+ *
+ * May 16 2009 mtk01051
+ * [DUMA00005921] [Camera] LED Flashlight first check in
+ * 
+ *
+ * Apr 7 2009 mtk02204
+ * [DUMA00004012] [Camera] Restructure and rename camera related custom folders and folder name of came
+ * 
+ *
+ * Mar 27 2009 mtk02204
+ * [DUMA00002977] [CCT] First check in of MT6516 CCT drivers
+ *
+ *
+ * Mar 25 2009 mtk02204
+ * [DUMA00111570] [Camera] The system crash after some operations
+ *
+ *
+ * Mar 20 2009 mtk02204
+ * [DUMA00002977] [CCT] First check in of MT6516 CCT drivers
+ *
+ *
+ * Mar 2 2009 mtk02204
+ * [DUMA00001084] First Check in of MT6516 multimedia drivers
+ *
+ *
+ * Feb 24 2009 mtk02204
+ * [DUMA00001084] First Check in of MT6516 multimedia drivers
+ *
+ *
+ * Dec 27 2008 MTK01813
+ * DUMA_MBJ CheckIn Files
+ * created by clearfsimport
+ *
+ * Dec 10 2008 mtk02204
+ * [DUMA00001084] First Check in of MT6516 multimedia drivers
+ *
+ *
+ * Oct 27 2008 mtk01051
+ * [DUMA00000851] Camera related drivers check in
+ * Modify Copyright Header
+ *
+ * Oct 24 2008 mtk02204
+ * [DUMA00000851] Camera related drivers check in
+ *
+ *
+ *------------------------------------------------------------------------------
+ * Upper this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
+ *============================================================================
+ ****************************************************************************/
 #include <linux/videodev2.h>
 #include <linux/i2c.h>
 #include <linux/platform_device.h>
@@ -28,7 +232,7 @@
 #endif
 static DEFINE_SPINLOCK(ov2659_drv_lock);
 
-MSDK_SCENARIO_ID_ENUM OV2659CurrentScenarioId = MSDK_SCENARIO_ID_CAMERA_PREVIEW;
+MSDK_SCENARIO_ID_ENUM CurrentScenarioId = MSDK_SCENARIO_ID_CAMERA_PREVIEW;
 
 extern int iReadReg(u16 a_u2Addr , u8 * a_puBuff , u16 i2cId);
 extern int iWriteReg(u16 a_u2Addr , u32 a_u4Data , u32 a_u4Bytes , u16 i2cId);
@@ -42,7 +246,7 @@ kal_uint16 OV2659_read_cmos_sensor(kal_uint32 addr)
     return get_byte;
 }
 
-#define mDELAY(ms)  msleep(ms)   //mdelay(ms) //LINE<><20130304><>panchenjun
+#define mDELAY(ms)  mdelay(ms)
 
 static struct
 {
@@ -61,8 +265,6 @@ static struct
 	kal_uint32  PreviewShutter;
 	kal_uint32  PreviewExtraShutter;
 	kal_uint32  SensorGain;
-	kal_uint32  SensorShutter;	
-	kal_uint32  WhiteBalance;
 	OV2659_SENSOR_MODE SensorMode;
 } OV2659Sensor;
 
@@ -353,13 +555,29 @@ void OV2659_night_mode(kal_bool enable)
 		OV2659_write_cmos_sensor(0x3a19, 0x60); //7c/* Max gain 8X for video night mode */
 		OV2659_write_cmos_sensor(0x3A00, night | 0x04); /*Disable fix frame rate*///0x7c
 	
-		OV2659_write_cmos_sensor(0x3a02 ,0x0b);// 60Hz, maximum exposures, , reduce 1/6 , ->5 frames
-		OV2659_write_cmos_sensor(0x3a03 ,0x78);
+		OV2659_write_cmos_sensor(0x3a02 ,0x0e);// 60Hz, maximum exposures, , reduce 1/6 , ->5 frames
+		OV2659_write_cmos_sensor(0x3a03 ,0x58);
 				
-		OV2659_write_cmos_sensor(0x3a14 ,0x0b);
-		OV2659_write_cmos_sensor(0x3a15 ,0x78);
+		OV2659_write_cmos_sensor(0x3a14 ,0x0c);
+		OV2659_write_cmos_sensor(0x3a15 ,0xde);
 	
-
+		//gamma to improve nightmode noise
+		OV2659_write_cmos_sensor(0x5025,0x12);
+		OV2659_write_cmos_sensor(0x5026,0x1a);
+		OV2659_write_cmos_sensor(0x5027,0x2e);
+		OV2659_write_cmos_sensor(0x5028,0x42);
+		OV2659_write_cmos_sensor(0x5029,0x52);
+		OV2659_write_cmos_sensor(0x502a,0x60);	
+		OV2659_write_cmos_sensor(0x502b,0x70);
+		OV2659_write_cmos_sensor(0x502c,0x7c);
+		OV2659_write_cmos_sensor(0x502d,0x8a);
+		OV2659_write_cmos_sensor(0x502e,0xa8);
+		OV2659_write_cmos_sensor(0x502f,0xb8);
+		OV2659_write_cmos_sensor(0x5030,0xc7);
+		OV2659_write_cmos_sensor(0x5031,0xdd);
+		OV2659_write_cmos_sensor(0x5032,0xee);
+		OV2659_write_cmos_sensor(0x5033,0xf6);
+		OV2659_write_cmos_sensor(0x5034,0x0d);
       
     }
 	else
@@ -367,11 +585,11 @@ void OV2659_night_mode(kal_bool enable)
 		OV2659_write_cmos_sensor(0x3a19, 0x3e);//gain ceiling 4x
    		OV2659_write_cmos_sensor(0x3A00, night | 0x04); /*Disable fix frame rate*/
 
-   		OV2659_write_cmos_sensor(0x3a02 ,0x02);// 60 maximum exposure . reduce 1/3, 10fps
-   		OV2659_write_cmos_sensor(0x3a03 ,0xde);
+   		OV2659_write_cmos_sensor(0x3a02 ,0x07);// 60 maximum exposure . reduce 1/3, 10fps
+   		OV2659_write_cmos_sensor(0x3a03 ,0x2c);
 			
-   		OV2659_write_cmos_sensor(0x3a14 ,0x02);
-   		OV2659_write_cmos_sensor(0x3a15 ,0xde);	
+   		OV2659_write_cmos_sensor(0x3a14 ,0x06);
+   		OV2659_write_cmos_sensor(0x3a15 ,0x6F);	
     }
 
 
@@ -512,19 +730,15 @@ static void OV2659InitialSetting(void)
 	OV2659_write_cmos_sensor(0x3703,0x24);
 	OV2659_write_cmos_sensor(0x3704,0x24);
 	OV2659_write_cmos_sensor(0x3705,0x0c);
-//	OV2659_write_cmos_sensor(0x3820,0x81);
-	OV2659_write_cmos_sensor(0x3820,0x87);
+	OV2659_write_cmos_sensor(0x3820,0x81);
 	
 	///1 shutterx2////////////////1122
 	///0 shutterx1///////////////
 	//bining
-	//#ifdef BINNING_EN
-	#if 1
-//		OV2659_write_cmos_sensor(0x3821,0x01);
-		OV2659_write_cmos_sensor(0x3821,0x07);
+	#ifdef BINNING_EN
+		OV2659_write_cmos_sensor(0x3821,0x01);
 	#else
-//		OV2659_write_cmos_sensor(0x3821,0x00);
-		OV2659_write_cmos_sensor(0x3821,0x06);
+		OV2659_write_cmos_sensor(0x3821,0x00);
 	#endif
 	
 	OV2659_write_cmos_sensor(0x370a,0x52);
@@ -535,13 +749,6 @@ static void OV2659InitialSetting(void)
 	OV2659_write_cmos_sensor(0x5000,0xfb);
 	OV2659_write_cmos_sensor(0x5001,0x1f);
 	OV2659_write_cmos_sensor(0x5002,0x00);//10
-	
-	OV2659_write_cmos_sensor(0x507e,0x33);//saturation 
-	OV2659_write_cmos_sensor(0x507f,0x22); 
-	OV2659_write_cmos_sensor(0x507c,0x80); 
-	OV2659_write_cmos_sensor(0x507d,0x00);         
-	OV2659_write_cmos_sensor(0x507b,0x06); 
-	
 	//gamma
 	OV2659_write_cmos_sensor(0x5025,0x0d);
 	OV2659_write_cmos_sensor(0x5026,0x1c);
@@ -577,105 +784,94 @@ static void OV2659InitialSetting(void)
 	OV2659_write_cmos_sensor(0x5033,0xf6);
 	OV2659_write_cmos_sensor(0x5034,0x11);
 	*/
-
-
-
 	/////////////CMX//////////////////
-#if 0
-	OV2659_write_cmos_sensor(0x5070,0x30); 
-	OV2659_write_cmos_sensor(0x5071,0x27); 
-	OV2659_write_cmos_sensor(0x5072,0x26); 
-	OV2659_write_cmos_sensor(0x5073,0x1f); 
-	OV2659_write_cmos_sensor(0x5074,0xbd); 
-	OV2659_write_cmos_sensor(0x5075,0xdd); 
-	OV2659_write_cmos_sensor(0x5076,0xcd); 
-	OV2659_write_cmos_sensor(0x5077,0xba); //0xbe 2012-11-14 0xdb 
-	OV2659_write_cmos_sensor(0x5078,0x10); 
-	OV2659_write_cmos_sensor(0x5079,0x98); 
-	OV2659_write_cmos_sensor(0x507a,0x01);
-#else
-	OV2659_write_cmos_sensor(0x5070,0x28); 
-	OV2659_write_cmos_sensor(0x5071,0x48); 
-	OV2659_write_cmos_sensor(0x5072,0x10); 
-	OV2659_write_cmos_sensor(0x5073,0x1b);  
-	OV2659_write_cmos_sensor(0x5074,0xce); //   blue-green d0  pan
-	OV2659_write_cmos_sensor(0x5075,0xeb); 
-	OV2659_write_cmos_sensor(0x5076,0xeb); 
-	OV2659_write_cmos_sensor(0x5077,0xe0); //0xbe 2012-11-14 0xdb   pan red -blue
-	OV2659_write_cmos_sensor(0x5078,0x0b); 
-	OV2659_write_cmos_sensor(0x5079,0x98); 
-	OV2659_write_cmos_sensor(0x507a,0x01);
 
-#endif
-
+	OV2659_write_cmos_sensor(0x5070,0x1C);
+	OV2659_write_cmos_sensor(0x5071,0x5b);
+	OV2659_write_cmos_sensor(0x5072,0x05);
+	OV2659_write_cmos_sensor(0x5073,0x20);
+	OV2659_write_cmos_sensor(0x5074,0x94);
+	OV2659_write_cmos_sensor(0x5075,0xB4);
+	OV2659_write_cmos_sensor(0x5076,0xB4);
+	OV2659_write_cmos_sensor(0x5077,0xaF);
+	OV2659_write_cmos_sensor(0x5078,0x05);
+	OV2659_write_cmos_sensor(0x5079,0x98);
+	OV2659_write_cmos_sensor(0x507a,0x01);
 	///////////////awb////////////////
-	OV2659_write_cmos_sensor(0x5035,0x6A); 
-	OV2659_write_cmos_sensor(0x5036,0x11); 
-	OV2659_write_cmos_sensor(0x5037,0x92); 
-	OV2659_write_cmos_sensor(0x5038,0x25); 
-	OV2659_write_cmos_sensor(0x5039,0xe1); 
-	OV2659_write_cmos_sensor(0x503a,0x01); 
-	OV2659_write_cmos_sensor(0x503c,0x11); 
-	OV2659_write_cmos_sensor(0x503d,0x10); //0x20
-	OV2659_write_cmos_sensor(0x503e,0x10); //0x10
-	OV2659_write_cmos_sensor(0x503f,0x63);//54   green-blue 0x63 //0x5a 2012-11-08 63   pan
-	OV2659_write_cmos_sensor(0x5040,0x58);//51 54  pan <5f  green - red
-	OV2659_write_cmos_sensor(0x5041,0x0e);//0x0e 
-	OV2659_write_cmos_sensor(0x5042,0xa0);//0x9c 
-	OV2659_write_cmos_sensor(0x5043,0x49);//0x20 0x39
-	OV2659_write_cmos_sensor(0x5044,0x34);//50
-	OV2659_write_cmos_sensor(0x5045,0x22); 
-	OV2659_write_cmos_sensor(0x5046,0x3f);//40
-	OV2659_write_cmos_sensor(0x5047,0xf8); 
-	OV2659_write_cmos_sensor(0x5048,0x08); 
-	OV2659_write_cmos_sensor(0x5049,0x70); 
-	OV2659_write_cmos_sensor(0x504a,0xf0); 
+	OV2659_write_cmos_sensor(0x5035,0x6A);
+	OV2659_write_cmos_sensor(0x5036,0x11);
+	OV2659_write_cmos_sensor(0x5037,0x92);
+	OV2659_write_cmos_sensor(0x5038,0x21);
+	OV2659_write_cmos_sensor(0x5039,0xe1);
+	OV2659_write_cmos_sensor(0x503a,0x01);
+	OV2659_write_cmos_sensor(0x503c,0x05);
+	OV2659_write_cmos_sensor(0x503d,0x08);
+	OV2659_write_cmos_sensor(0x503e,0x08);
+	OV2659_write_cmos_sensor(0x503f,0x64);
+	OV2659_write_cmos_sensor(0x5040,0x58);
+	OV2659_write_cmos_sensor(0x5041,0x2A);
+	OV2659_write_cmos_sensor(0x5042,0xC5);
+	OV2659_write_cmos_sensor(0x5043,0x2E);
+	OV2659_write_cmos_sensor(0x5044,0x3A);
+	OV2659_write_cmos_sensor(0x5045,0x3C);
+	OV2659_write_cmos_sensor(0x5046,0x44);
+	OV2659_write_cmos_sensor(0x5047,0xf8);
+	OV2659_write_cmos_sensor(0x5048,0x08);
+	OV2659_write_cmos_sensor(0x5049,0x70);
+	OV2659_write_cmos_sensor(0x504a,0xf0);
 	OV2659_write_cmos_sensor(0x504b,0xf0);
 	
 	///////////////lenc/////////////////
-	OV2659_write_cmos_sensor(0x500c,0x03); 
-	OV2659_write_cmos_sensor(0x500d,0x32); 
-	OV2659_write_cmos_sensor(0x500e,0x02); 
-	OV2659_write_cmos_sensor(0x500f,0x64);         
-	OV2659_write_cmos_sensor(0x5010,0x47); //5a 56 7-30 0x49
-	OV2659_write_cmos_sensor(0x5011,0x18); 
-	OV2659_write_cmos_sensor(0x5012,0x66); 
-	OV2659_write_cmos_sensor(0x5013,0x03); 
-	OV2659_write_cmos_sensor(0x5014,0x24); 
-	OV2659_write_cmos_sensor(0x5015,0x02); 
-	OV2659_write_cmos_sensor(0x5016,0x60); 
-	OV2659_write_cmos_sensor(0x5017,0x41); //58 4c 7-30
-	OV2659_write_cmos_sensor(0x5018,0x10); 
-	OV2659_write_cmos_sensor(0x5019,0x66); 
-	OV2659_write_cmos_sensor(0x501a,0x03); 
-	OV2659_write_cmos_sensor(0x501b,0x16); //18
-	OV2659_write_cmos_sensor(0x501c,0x02); 
-	OV2659_write_cmos_sensor(0x501d,0x68); //50
-	OV2659_write_cmos_sensor(0x501e,0x3f); //52 43 7-30
-	OV2659_write_cmos_sensor(0x501f,0x10); 
+	OV2659_write_cmos_sensor(0x500c,0x03);
+	OV2659_write_cmos_sensor(0x500d,0x0c);
+	OV2659_write_cmos_sensor(0x500e,0x02);
+	OV2659_write_cmos_sensor(0x500f,0x5c);
+	
+	OV2659_write_cmos_sensor(0x5010,0x4a);
+	OV2659_write_cmos_sensor(0x5011,0x00);
+	OV2659_write_cmos_sensor(0x5012,0x66);
+	OV2659_write_cmos_sensor(0x5013,0x03);
+	OV2659_write_cmos_sensor(0x5014,0x0c);
+	OV2659_write_cmos_sensor(0x5015,0x02);
+	OV2659_write_cmos_sensor(0x5016,0x5c);
+	OV2659_write_cmos_sensor(0x5017,0x40);
+	OV2659_write_cmos_sensor(0x5018,0x00);
+	OV2659_write_cmos_sensor(0x5019,0x66);
+	OV2659_write_cmos_sensor(0x501a,0x03);
+	OV2659_write_cmos_sensor(0x501b,0x0c);
+	OV2659_write_cmos_sensor(0x501c,0x02);
+	OV2659_write_cmos_sensor(0x501d,0x66);
+	OV2659_write_cmos_sensor(0x501e,0x3a);
+	OV2659_write_cmos_sensor(0x501f,0x00);
 	OV2659_write_cmos_sensor(0x5020,0x66);
 	
 	///////CIP/DNS/SHARPEN CTRL///////
 	OV2659_write_cmos_sensor(0x506e,0x44);
-	OV2659_write_cmos_sensor(0x5064,0x08);         
-	OV2659_write_cmos_sensor(0x5065,0x10); 
-	OV2659_write_cmos_sensor(0x5066,0x38); //0x38    16     28 pan
-	OV2659_write_cmos_sensor(0x5067,0x28); //0x28	 10     20 pan
-	OV2659_write_cmos_sensor(0x506c,0x08); 
-	OV2659_write_cmos_sensor(0x506d,0x10);         
-	OV2659_write_cmos_sensor(0x506f,0xa6);         
-	OV2659_write_cmos_sensor(0x5068,0x08); 
-	OV2659_write_cmos_sensor(0x5069,0x10);         
-	OV2659_write_cmos_sensor(0x506a,0x09); //0x0d 18   0d
-	OV2659_write_cmos_sensor(0x506b,0x12); //0x16 28   pan
+	
+	OV2659_write_cmos_sensor(0x5064,0x08);	
+	OV2659_write_cmos_sensor(0x5065,0x10);
+	OV2659_write_cmos_sensor(0x5066,0x12);
+	
+	OV2659_write_cmos_sensor(0x5067,0x02);
+	OV2659_write_cmos_sensor(0x506c,0x08);
+	OV2659_write_cmos_sensor(0x506d,0x10);
+	
+	OV2659_write_cmos_sensor(0x506e,0x44);/////////////////		
+	OV2659_write_cmos_sensor(0x506f,0xa6);
+
+	///denoise
+	OV2659_write_cmos_sensor(0x5068,0x08);
+	OV2659_write_cmos_sensor(0x5069,0x10);
+	
+	OV2659_write_cmos_sensor(0x506a,0x04);
+	OV2659_write_cmos_sensor(0x506b,0x12);
 	////////////////SDE/////////////////	
-	OV2659_write_cmos_sensor(0x507e,0x33);
-	OV2659_write_cmos_sensor(0x507f,0x22);
-	OV2659_write_cmos_sensor(0x507b,0x06);
+	OV2659_write_cmos_sensor(0x507e,0x3a);
+	OV2659_write_cmos_sensor(0x507f,0x1a);
+	OV2659_write_cmos_sensor(0x507b,0x02);
 	
 	OV2659_write_cmos_sensor(0x507a,0x01);
-	//#ifdef OVT_AUTOUV
-	#if 1
+	#ifdef OVT_AUTOUV
 	OV2659_write_cmos_sensor(0x5084,0x0c);//th1 1.5x
 	OV2659_write_cmos_sensor(0x5085,0x1f);//1f//th2 4x
 	#else
@@ -683,34 +879,19 @@ static void OV2659InitialSetting(void)
 	OV2659_write_cmos_sensor(0x5085,0x3e);
 	#endif
 	////////////////?//////////////////
-	OV2659_write_cmos_sensor(0x5005,0x80);	
-		//LCD adjust                   
-	OV2659_write_cmos_sensor(0x5051,0x40); //40 red 
-	OV2659_write_cmos_sensor(0x5052,0x40); //green
-	OV2659_write_cmos_sensor(0x5053,0x40);  //blue
+	OV2659_write_cmos_sensor(0x5005,0x80);
 	///////////////AEC/AGC////////////
-	//ev 
-	OV2659_write_cmos_sensor(0x3a0f,0x30); //40 34
-	OV2659_write_cmos_sensor(0x3a10,0x28); //38 2c
-	OV2659_write_cmos_sensor(0x3a11,0x60);
-	OV2659_write_cmos_sensor(0x3a1b,0x30); //40 34 
-	OV2659_write_cmos_sensor(0x3a1e,0x28); //38 2c       
-	OV2659_write_cmos_sensor(0x3a1f,0x20); 
-
-	OV2659_write_cmos_sensor(0x5060,0x69); 
-	OV2659_write_cmos_sensor(0x5061,0xbe); 
-	OV2659_write_cmos_sensor(0x5062,0xbe); 
-	OV2659_write_cmos_sensor(0x5063,0x69); 
-	
-	//gain ceiling 
-	OV2659_write_cmos_sensor(0x3a18,0x00); 
-	OV2659_write_cmos_sensor(0x3a19,0x38);
-	OV2659_write_cmos_sensor(0x4009,0x02);  
-
-	OV2659_write_cmos_sensor(0x3503,0x00);                 
-
-	OV2659_write_cmos_sensor(0x3011,0x82);
-	
+	OV2659_write_cmos_sensor(0x3a0f,0x30);
+	OV2659_write_cmos_sensor(0x3a10,0x28);
+	OV2659_write_cmos_sensor(0x3a11,0x61);
+	OV2659_write_cmos_sensor(0x3a1b,0x32);
+	OV2659_write_cmos_sensor(0x3a1e,0x26);
+	OV2659_write_cmos_sensor(0x3a1f,0x14);
+	//////////AVERAGE WEIGHT/////////
+	OV2659_write_cmos_sensor(0x5060,0x69);
+	OV2659_write_cmos_sensor(0x5061,0x7d);
+	OV2659_write_cmos_sensor(0x5062,0x7d);
+	OV2659_write_cmos_sensor(0x5063,0x69);
 	//////
 	spin_lock(&ov2659_drv_lock);
 	OV2659Sensor.IsPVmode= 1;
@@ -748,17 +929,12 @@ static void OV2659PreviewSetting(void)
 		OV2659_write_cmos_sensor(0x3004,0x10);
 	#endif
 	OV2659_write_cmos_sensor(0x3005,0x16);
-	OV2659_write_cmos_sensor(0x3006,0x0f);
+	OV2659_write_cmos_sensor(0x3006,0x0d);
 
 	OV2659_write_cmos_sensor(0x3500,((OV2659Sensor.PreviewShutter*16)>>16) & 0XFF);
 	OV2659_write_cmos_sensor(0x3501,((OV2659Sensor.PreviewShutter*16)>>8) & 0XFF);
 	OV2659_write_cmos_sensor(0x3502,(OV2659Sensor.PreviewShutter*16) & 0XFF);
 	OV2659_write_cmos_sensor(0x350B, OV2659Sensor.SensorGain);	
-	
-	OV2659_write_cmos_sensor(0x5066,0x28); //26 30 //2012-10-25 0x26
-	OV2659_write_cmos_sensor(0x5067,0x20); //20 28 //2012-10-25 0x20
-	OV2659_write_cmos_sensor(0x506a,0x18); //18 28
-	OV2659_write_cmos_sensor(0x506b,0x28); //28 38
 	
 	OV2659_write_cmos_sensor(0x3807, 0xb7);
 
@@ -790,13 +966,10 @@ static void OV2659PreviewSetting(void)
 	//TIMING YINC : v odd inc 3;v even inc 1
 	OV2659_write_cmos_sensor(0x3815, 0x31);
 
-	//#ifdef BINNING_EN
-	#if 1
-//		OV2659_write_cmos_sensor(0x3821, 0x01);
-		OV2659_write_cmos_sensor(0x3821, 0x07);
+	#ifdef BINNING_EN
+		OV2659_write_cmos_sensor(0x3821, 0x01);
 	#else
-//		OV2659_write_cmos_sensor(0x3821, 0x00);
-		OV2659_write_cmos_sensor(0x3821, 0x06);
+		OV2659_write_cmos_sensor(0x3821, 0x00);
 	#endif
 
 	OV2659_write_cmos_sensor(0x3A00, OV2659_read_cmos_sensor(0x3A00)| 0x04);///sofia 20110113
@@ -827,14 +1000,13 @@ static void OV2659PreviewSetting(void)
 	OV2659_write_cmos_sensor(0x3705, 0x0c);
 	///////////////////////////
 	OV2659_write_cmos_sensor(0x370a, 0x52);
-	//#ifdef OVT_AUTOUV 
-	#if 0
+	#ifdef OVT_AUTOUV 
 	if(!(OV2659_read_cmos_sensor(0x507b)&0xF0))
 	{
 		OV2659_write_cmos_sensor(0x5084,0x0c);//th1 1.5x
 		OV2659_write_cmos_sensor(0x5085,0x1f);//1f//th2 4x
-		OV2659_write_cmos_sensor(0x507e,0x33);//offset 1
-		OV2659_write_cmos_sensor(0x507f,0x22);//0x18//offset 2
+		OV2659_write_cmos_sensor(0x507e,0x3a);//offset 1
+		OV2659_write_cmos_sensor(0x507f,0x1a);//0x18//offset 2
 		OV2659_write_cmos_sensor(0x507a, OV2659_read_cmos_sensor(0x507a)&~0x10);//Auto UV
 	}
 	#endif
@@ -867,12 +1039,6 @@ static void OV2659FullSizeCaptureSetting(void)
 	OV2659_write_cmos_sensor(0x3004,0x10);
 	OV2659_write_cmos_sensor(0x3005,0x16);//0x1b
 	OV2659_write_cmos_sensor(0x3006,0x0d);//0x0d
-	
-	OV2659_write_cmos_sensor(0x5066, 0x28); //28 0x38 //2012-10-25  0x1e     
-	OV2659_write_cmos_sensor(0x5067, 0x20); //18 0x28 mingji 0x18 //2012-10-25  0x06 
-	OV2659_write_cmos_sensor(0x506a, 0x06); //0x0d   
-	OV2659_write_cmos_sensor(0x506b, 0x40); //0x16 mingji 0x28 0x38 
-	
 	//(0,0)
 	OV2659_write_cmos_sensor(0x3800, 0x00);
 	OV2659_write_cmos_sensor(0x3801, 0x00);
@@ -939,10 +1105,8 @@ static void OV2659FullSizeCaptureSetting(void)
 	OV2659_write_cmos_sensor(0x3703, 0x48);
 	OV2659_write_cmos_sensor(0x3704, 0x48);
 	OV2659_write_cmos_sensor(0x3705, 0x18);
-//	OV2659_write_cmos_sensor(0x3820, 0x80);
-	OV2659_write_cmos_sensor(0x3820, 0x86);
-//	OV2659_write_cmos_sensor(0x3821, 0x00);
-	OV2659_write_cmos_sensor(0x3821, 0x06);
+	OV2659_write_cmos_sensor(0x3820, 0x80);
+	OV2659_write_cmos_sensor(0x3821, 0x00);
 	OV2659_write_cmos_sensor(0x370a, 0x12);
 	
 	//VFIFO Read Strat:128
@@ -981,9 +1145,9 @@ static void OV2659FullSizeCaptureSetting(void)
 *************************************************************************/
 static void OV2659SetHVMirror(kal_uint8 Mirror)
 {
-	kal_uint8 mirror= 0, flip=0;
+  kal_uint8 mirror= 0, flip=0;
 #ifdef OV2659_DEBUG
-    kal_wap_trace(MOD_ENG,TRACE_INFO,"Mirror:%d",Mirror);
+  kal_wap_trace(MOD_ENG,TRACE_INFO,"Mirror:%d",Mirror);
 #endif 
     
   	flip = OV2659_read_cmos_sensor(0x3820);
@@ -1059,7 +1223,6 @@ UINT32 OV2659Open(void)
   	OV2659Sensor.CaptureDummyLines = 0;
 	OV2659Sensor.PreviewDummyPixels = 0;
   	OV2659Sensor.PreviewDummyLines = 0;
-	OV2659Sensor.WhiteBalance = 1;
 	OV2659Sensor.SensorMode= SENSOR_MODE_INIT;
 	spin_unlock(&ov2659_drv_lock);
 
@@ -1088,7 +1251,8 @@ UINT32 OV2659Open(void)
 *************************************************************************/
 UINT32 OV2659Close(void)
 {
-   //	CISModulePowerOn(FALSE);
+//	CISModulePowerOn(FALSE);
+
 	return ERROR_NONE;
 }	/* OV2659Close() */
 /*************************************************************************
@@ -1116,7 +1280,7 @@ UINT32 OV2659Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	
 	OV2659SENSORDB("[OV2659]OV2659Preview enter :\n ");
 	#if defined(MT6575)
-	switch(OV2659CurrentScenarioId)
+	switch(CurrentScenarioId)
 	{
 		case MSDK_SCENARIO_ID_CAMERA_ZSD:
 			OV2659SENSORDB("[OV2659][OV2659Preview]MSDK_SCENARIO_ID_CAMERA_ZSD :\n ");
@@ -1134,8 +1298,7 @@ UINT32 OV2659Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	OV2659_set_AE_mode(KAL_TRUE);
 	OV2659_set_AWB_mode(KAL_TRUE);
 
-	//OV2659SetHVMirror(sensor_config_data->SensorImageMirror);
-	//OV2659SetHVMirror(IMAGE_HV_MIRROR);
+	OV2659SetHVMirror(sensor_config_data->SensorImageMirror);
 	//OV2659_night_mode(1);
 	
 	OV2659SENSORDB("[OV2659]OV2659Preview exit :\n ");
@@ -1173,20 +1336,16 @@ UINT32 OV2659Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
   	OV2659SetDummy(OV2659Sensor.CaptureDummyPixels, OV2659Sensor.CaptureDummyLines);
 
 	prev_line_len = OV2659_PV_PERIOD_PIXEL_NUMS + OV2659Sensor.PreviewDummyPixels;
-  	cap_line_len = OV2659_FULL_PERIOD_PIXEL_NUMS + OV2659Sensor.CaptureDummyPixels;
+  	cap_line_len = OV2659_PV_PERIOD_PIXEL_NUMS + OV2659Sensor.CaptureDummyPixels;
   	shutter = (shutter * OV2659Sensor.CapturePclk) / OV2659Sensor.PreviewPclk;
   	shutter = (shutter * prev_line_len) / cap_line_len;
 	#ifdef BINNING_EN/* By sensor design */
  		shutter*=2;
  	#endif
- 	shutter*=4;
-
   	OV2659WriteShutter(shutter);
 
   	OV2659WriteSensorGain(OV2659Sensor.SensorGain);
 	}
-
-    //OV2659SetHVMirror(IMAGE_HV_MIRROR);
 	
 	OV2659SENSORDB("[OV2659]OV2659Capture exit :\n ");
 	return ERROR_NONE; 
@@ -1200,10 +1359,6 @@ UINT32 OV2659GetResolution(MSDK_SENSOR_RESOLUTION_INFO_STRUCT *pSensorResolution
 	
 	pSensorResolution->SensorFullWidth= OV2659_IMAGE_SENSOR_UVGA_WITDH - 2 * OV2659_FULL_GRAB_START_X;  
 	pSensorResolution->SensorFullHeight= OV2659_IMAGE_SENSOR_UVGA_HEIGHT - 2 * OV2659_FULL_GRAB_START_X;
-
-	pSensorResolution->SensorVideoWidth=OV2659_IMAGE_SENSOR_SVGA_WIDTH - 2 * OV2659_PV_GRAB_START_X;//LINE <> <DATE20121230> <fix video rec hung up> wupingzhou
-	pSensorResolution->SensorVideoHeight=OV2659_IMAGE_SENSOR_SVGA_HEIGHT - 2 * OV2659_PV_GRAB_START_Y;//LINE <> <DATE20121230> <fix video rec hung up> wupingzhou
-
 	OV2659SENSORDB("[OV2659][OV2659GetInfo exit] :\n ");
 	return ERROR_NONE;
 }	/* OV2659GetResolution() */
@@ -1250,13 +1405,13 @@ UINT32 OV2659GetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
 	pSensorInfo->PreviewDelayFrame = 2; 
 	pSensorInfo->VideoDelayFrame = 4; 		
 	pSensorInfo->SensorMasterClockSwitch = 0; 
-	pSensorInfo->SensorDrivingCurrent = ISP_DRIVING_8MA;   		
+       pSensorInfo->SensorDrivingCurrent = ISP_DRIVING_8MA;   		
 
 	switch (ScenarioId)
 	{
 		case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
 		case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
-		//case MSDK_SCENARIO_ID_VIDEO_CAPTURE_MPEG4:
+		case MSDK_SCENARIO_ID_VIDEO_CAPTURE_MPEG4:
 			pSensorInfo->SensorClockFreq=26;
 			pSensorInfo->SensorClockDividCount=	3;
 			pSensorInfo->SensorClockRisingCount= 0;
@@ -1268,7 +1423,7 @@ UINT32 OV2659GetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
 			
 		break;
 		case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
-		//case MSDK_SCENARIO_ID_CAMERA_CAPTURE_MEM:
+		case MSDK_SCENARIO_ID_CAMERA_CAPTURE_MEM:
 		#if defined(MT6575)
 			case MSDK_SCENARIO_ID_CAMERA_ZSD:
 		#endif
@@ -1307,12 +1462,12 @@ UINT32 OV2659Control(MSDK_SCENARIO_ID_ENUM ScenarioId, MSDK_SENSOR_EXPOSURE_WIND
 					  MSDK_SENSOR_CONFIG_STRUCT *pSensorConfigData)
 {
 	OV2659SENSORDB("[OV2659]OV2659Control enter :\n ");
-	OV2659CurrentScenarioId = ScenarioId;
+	CurrentScenarioId = ScenarioId;
 	switch (ScenarioId)
 	{
 		case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
 		case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
-		//case MSDK_SCENARIO_ID_VIDEO_CAPTURE_MPEG4:
+		case MSDK_SCENARIO_ID_VIDEO_CAPTURE_MPEG4:
 		#if defined(MT6575)
 			case MSDK_SCENARIO_ID_CAMERA_ZSD:
 				OV2659SENSORDB("[OV2659][OV2659Control]MSDK_SCENARIO_ID_CAMERA_ZSD :\n ");
@@ -1320,7 +1475,7 @@ UINT32 OV2659Control(MSDK_SCENARIO_ID_ENUM ScenarioId, MSDK_SENSOR_EXPOSURE_WIND
 			OV2659Preview(pImageWindow, pSensorConfigData);
 			break;
 		case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
-		//case MSDK_SCENARIO_ID_CAMERA_CAPTURE_MEM:				
+		case MSDK_SCENARIO_ID_CAMERA_CAPTURE_MEM:				
 			OV2659Capture(pImageWindow, pSensorConfigData);
 			break;
 		default:
@@ -1336,7 +1491,6 @@ BOOL OV2659_set_param_wb(UINT16 para)
 {
     kal_uint8  temp_reg;
 	OV2659SENSORDB("OV2659_set_param_wb iPara=%d, %d \n",para);
-	OV2659Sensor.WhiteBalance = para;
 
     switch (para)
     {
@@ -1373,6 +1527,7 @@ BOOL OV2659_set_param_wb(UINT16 para)
 			 OV2659_write_cmos_sensor(0x3403 ,0x0 );
 			 OV2659_write_cmos_sensor(0x3404 ,0x4 );
 			 OV2659_write_cmos_sensor(0x3405 ,0x48 );
+       
 			 break;
 
         case AWB_MODE_INCANDESCENT: //office
@@ -1426,59 +1581,36 @@ BOOL OV2659_set_param_effect(UINT16 para)
     switch (para)
     {
         case MEFFECT_OFF:
-			 OV2659_write_cmos_sensor(0x3208, 0x00);
 			 OV2659_write_cmos_sensor(0x507B, temp_reg);
-			 //#ifdef OVT_AUTOUV
-			 #if 1
-				 OV2659_write_cmos_sensor(0x507e,0x30);//offset 1  , it must be same with PV setting[Ken]  33
-        		 OV2659_write_cmos_sensor(0x507f,0x18);//22
+			 #ifdef OVT_AUTOUV
+				 OV2659_write_cmos_sensor(0x507e,0x3f);//offset 1  , it must be same with PV setting[Ken]
+        		 OV2659_write_cmos_sensor(0x507f,0x1e);
         	 #endif
-			 OV2659_write_cmos_sensor(0x3208, 0x10);
-			 OV2659_write_cmos_sensor(0x3208, 0xa0);
 			 break;
 
         case MEFFECT_SEPIA:
-			 OV2659_write_cmos_sensor(0x3208, 0x00);
 			 OV2659_write_cmos_sensor(0x507B, (temp_reg|0x18));
 			 OV2659_write_cmos_sensor(0x507E, (0x40));
 			 OV2659_write_cmos_sensor(0x507F, (0xA0));
-			 OV2659_write_cmos_sensor(0x3208, 0x10);
-			 OV2659_write_cmos_sensor(0x3208, 0xa0);
 			 break;
         case MEFFECT_NEGATIVE:
-			 OV2659_write_cmos_sensor(0x3208, 0x00);
-			
-			 OV2659_write_cmos_sensor(0x507e,0x33);//offset 1  , it must be same with PV setting[Ken]
-        		 OV2659_write_cmos_sensor(0x507f,0x22);
-			 
 			 OV2659_write_cmos_sensor(0x507B, (temp_reg|0x40));
-			 OV2659_write_cmos_sensor(0x3208, 0x10);
-			 OV2659_write_cmos_sensor(0x3208, 0xa0);
-			 break;
+			break;
 
         case MEFFECT_SEPIAGREEN:
-			 OV2659_write_cmos_sensor(0x3208, 0x00);
 			 OV2659_write_cmos_sensor(0x507B, (temp_reg|0x18));
 			 OV2659_write_cmos_sensor(0x507E, (0x60));
 			 OV2659_write_cmos_sensor(0x507F, (0x60));
-			 OV2659_write_cmos_sensor(0x3208, 0x10);
-			 OV2659_write_cmos_sensor(0x3208, 0xa0);
-			 break;
+             break;
 
         case MEFFECT_SEPIABLUE:
-			 OV2659_write_cmos_sensor(0x3208, 0x00);
   			 OV2659_write_cmos_sensor(0x507B, (temp_reg|0x18));
 			 OV2659_write_cmos_sensor(0x507E, (0xA0));
 			 OV2659_write_cmos_sensor(0x507F, (0x40));
-			 OV2659_write_cmos_sensor(0x3208, 0x10);
-			 OV2659_write_cmos_sensor(0x3208, 0xa0);
-			 break;
+             break;
 		case MEFFECT_MONO: //B&W
-			 OV2659_write_cmos_sensor(0x3208, 0x00);
 			 OV2659_write_cmos_sensor(0x507B, (temp_reg|0x20));
 			 //OV2659_write_cmos_sensor(0x507B, (0x4 | 0x60));
-			 OV2659_write_cmos_sensor(0x3208, 0x10);
-			 OV2659_write_cmos_sensor(0x3208, 0xa0);
 			 break;
         default:
             return KAL_FALSE;
@@ -1758,28 +1890,6 @@ static void OV2659GetCurAeAwbInfo(UINT32 pSensorAEAWBCurStruct)
 	Info->SensorAwbGainCur.AwbCurBgain=OV2659_read_cmos_sensor(0x504e);
 }
 #endif
-        
-
-void OV2659GetExifInfo(UINT32 exifAddr)
-{
-	SENSOR_EXIF_INFO_STRUCT* pExifInfo = (SENSOR_EXIF_INFO_STRUCT*)exifAddr;
-	pExifInfo->FNumber = 28;
-	pExifInfo->AEISOSpeed = AE_ISO_100;
-	pExifInfo->AWBMode = OV2659Sensor.WhiteBalance;
-	pExifInfo->CapExposureTime = 0;
-	pExifInfo->FlashLightTimeus = 0;
-	pExifInfo->RealISOValue = AE_ISO_100;
-}      
-  
-//BEGIN <ASNTZO-59> <DATE20130325> <fix bug:pre camera no backdropper video effect> wupingzhou
-void OV2659GetAEAWBLock(UINT32 *pAElockRet32,UINT32 *pAWBlockRet32)
-{
-    *pAElockRet32 = 1;
-    *pAWBlockRet32 = 1;
-    //SENSORDB("OV2659GetAEAWBLock,AE=%d ,AWB=%d\n,",*pAElockRet32,*pAWBlockRet32);
-}
-//END <ASNTZO-59> <DATE20130325> <fix bug:pre camera no backdropper video effect> wupingzhou
-
 
 UINT32 OV2659FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
 							 UINT8 *pFeaturePara,UINT32 *pFeatureParaLen)
@@ -1808,7 +1918,7 @@ UINT32 OV2659FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
 			break;
 		case SENSOR_FEATURE_GET_PERIOD:
 			#if defined(MT6575)
-			switch(OV2659CurrentScenarioId)
+			switch(CurrentScenarioId)
 			{
 				case MSDK_SCENARIO_ID_CAMERA_ZSD:
 					OV2659SENSORDB("[OV2659][SENSOR_FEATURE_GET_PERIOD]MSDK_SCENARIO_ID_CAMERA_ZSD :\n ");
@@ -1833,7 +1943,7 @@ UINT32 OV2659FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
 			break;
 		case SENSOR_FEATURE_GET_PIXEL_CLOCK_FREQ:
 			#if defined(MT6575)
-			switch(OV2659CurrentScenarioId)
+			switch(CurrentScenarioId)
 			{
 				case MSDK_SCENARIO_ID_CAMERA_ZSD:
 					OV2659SENSORDB("[OV2659][SENSOR_FEATURE_GET_PIXEL_CLOCK_FREQ]MSDK_SCENARIO_ID_CAMERA_ZSD :\n ");
@@ -1928,16 +2038,6 @@ UINT32 OV2659FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
 			OV2659GetCurAeAwbInfo(*pFeatureData32);			
 			break;
 		#endif
-		case SENSOR_FEATURE_GET_EXIF_INFO:
-			OV2659SENSORDB("SENSOR_FEATURE_GET_EXIF_INFO\n");
-			OV2659SENSORDB("EXIF addr = 0x%x\n",*pFeatureData32);          
-			OV2659GetExifInfo(*pFeatureData32);
-			break;
-//BEGIN <ASNTZO-59> <DATE20130325> <fix bug:pre camera no backdropper video effect> wupingzhou
-        case SENSOR_FEATURE_GET_AE_AWB_LOCK_INFO:
-        OV2659GetAEAWBLock((*pFeatureData32),*(pFeatureData32+1));
-        break;
-//END <ASNTZO-59> <DATE20130325> <fix bug:pre camera no backdropper video effect> wupingzhou
 		default:
 			OV2659SENSORDB("OV2659FeatureControl:default \n");
 			break;			
